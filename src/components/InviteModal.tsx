@@ -9,7 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import InviteStats from './InviteStats';
-import { Share2, Copy, Mail, MessageCircle, Users, Gift, Facebook, Twitter, Instagram, Linkedin, ExternalLink, BarChart3 } from 'lucide-react';
+import { Share2, Copy, Mail, MessageCircle, Users, Gift, BarChart3 } from 'lucide-react';
 
 interface InviteModalProps {
   children: React.ReactNode;
@@ -25,8 +25,6 @@ const InviteModal = ({ children }: InviteModalProps) => {
 
   const inviteLink = inviteCode ? `${window.location.origin}/?ref=${inviteCode}` : `${window.location.origin}/?ref=loading`;
   const inviteMessage = `Join me on GameBuddy! Find your perfect sports partner for tennis, pickleball, basketball, and more. ${inviteLink}`;
-  const shortMessage = `🎾 Join me on GameBuddy! Find your perfect sports partner! ${inviteLink}`;
-  const hashtags = '#GameBuddy #SportsPartner #Tennis #Pickleball #Basketball #Badminton';
 
   useEffect(() => {
     if (isOpen && user) {
@@ -101,41 +99,6 @@ const InviteModal = ({ children }: InviteModalProps) => {
   const shareViaSMS = () => {
     const smsLink = `sms:?body=${encodeURIComponent(inviteMessage)}`;
     window.open(smsLink);
-  };
-
-  const shareViaTwitter = () => {
-    const twitterText = `${shortMessage} ${hashtags}`;
-    const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(twitterText)}`;
-    window.open(twitterUrl, '_blank');
-  };
-
-  const shareViaFacebook = () => {
-    const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(inviteLink)}&quote=${encodeURIComponent(shortMessage)}`;
-    window.open(facebookUrl, '_blank');
-  };
-
-  const shareViaLinkedIn = () => {
-    const linkedinUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(inviteLink)}`;
-    window.open(linkedinUrl, '_blank');
-  };
-
-  const shareViaInstagram = () => {
-    // Instagram doesn't support direct URL sharing, so we copy the message
-    copyInviteMessage();
-    toast({
-      title: "Message copied!",
-      description: "Paste this in your Instagram story or post"
-    });
-  };
-
-  const shareViaWhatsApp = () => {
-    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shortMessage)}`;
-    window.open(whatsappUrl, '_blank');
-  };
-
-  const shareViaTelegram = () => {
-    const telegramUrl = `https://t.me/share/url?url=${encodeURIComponent(inviteLink)}&text=${encodeURIComponent(shortMessage)}`;
-    window.open(telegramUrl, '_blank');
   };
 
   const handleEmailInvite = async (e: React.FormEvent) => {
@@ -235,67 +198,6 @@ const InviteModal = ({ children }: InviteModalProps) => {
               >
                 <Share2 className="h-4 w-4" />
                 SMS
-              </Button>
-            </div>
-          </div>
-
-          {/* Social Media Share Options */}
-          <div className="space-y-3">
-            <Label className="text-sm font-medium">Share on Social Media</Label>
-            <div className="grid grid-cols-3 gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={shareViaTwitter}
-                className="flex items-center gap-2 text-blue-500 hover:text-blue-600"
-              >
-                <Twitter className="h-4 w-4" />
-                Twitter
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={shareViaFacebook}
-                className="flex items-center gap-2 text-blue-600 hover:text-blue-700"
-              >
-                <Facebook className="h-4 w-4" />
-                Facebook
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={shareViaLinkedIn}
-                className="flex items-center gap-2 text-blue-700 hover:text-blue-800"
-              >
-                <Linkedin className="h-4 w-4" />
-                LinkedIn
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={shareViaInstagram}
-                className="flex items-center gap-2 text-pink-500 hover:text-pink-600"
-              >
-                <Instagram className="h-4 w-4" />
-                Instagram
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={shareViaWhatsApp}
-                className="flex items-center gap-2 text-green-500 hover:text-green-600"
-              >
-                <MessageCircle className="h-4 w-4" />
-                WhatsApp
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={shareViaTelegram}
-                className="flex items-center gap-2 text-blue-400 hover:text-blue-500"
-              >
-                <ExternalLink className="h-4 w-4" />
-                Telegram
               </Button>
             </div>
           </div>
