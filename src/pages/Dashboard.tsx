@@ -3,10 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import MatchCard from '@/components/MatchCard';
+import InviteModal from '@/components/InviteModal';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { Users, MessageCircle, Settings, Trophy, User } from 'lucide-react';
+import { Users, MessageCircle, Settings, Trophy, UserPlus, User } from 'lucide-react';
 
 interface Profile {
   id: string;
@@ -158,6 +159,11 @@ const Dashboard = () => {
             <h1 className="text-xl font-bold">GameBuddy</h1>
           </div>
           <div className="flex items-center gap-2">
+            <InviteModal>
+              <Button variant="ghost" size="sm">
+                <UserPlus className="h-4 w-4" />
+              </Button>
+            </InviteModal>
             <Button variant="ghost" size="sm" onClick={() => navigate('/profile')}>
               <User className="h-4 w-4" />
             </Button>
@@ -193,11 +199,23 @@ const Dashboard = () => {
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground mb-6">
-                  You've seen all available matches. Check back later for more potential sports partners!
+                  You've seen all available matches. Help grow the community by inviting friends!
                 </p>
-                <Button onClick={fetchPotentialMatches}>
-                  Refresh Matches
-                </Button>
+                <div className="space-y-3">
+                  <InviteModal>
+                    <Button className="w-full">
+                      <UserPlus className="mr-2 h-4 w-4" />
+                      Invite Friends
+                    </Button>
+                  </InviteModal>
+                  <Button 
+                    variant="outline" 
+                    onClick={fetchPotentialMatches}
+                    className="w-full"
+                  >
+                    Check Again
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           </div>

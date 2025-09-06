@@ -10,6 +10,7 @@ import Dashboard from "./pages/Dashboard";
 import ProfileSetup from "./pages/ProfileSetup";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
+import InviteRedemption from "./components/InviteRedemption";
 
 const queryClient = new QueryClient();
 
@@ -57,6 +58,7 @@ const App = () => (
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
+          <InviteRedemption />
         </BrowserRouter>
       </TooltipProvider>
     </AuthProvider>
