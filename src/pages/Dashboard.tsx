@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import MatchCard from '@/components/MatchCard';
@@ -6,7 +7,7 @@ import InviteModal from '@/components/InviteModal';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { Users, MessageCircle, Settings, Trophy, UserPlus } from 'lucide-react';
+import { Users, MessageCircle, Settings, Trophy, UserPlus, User } from 'lucide-react';
 
 interface Profile {
   id: string;
@@ -25,6 +26,7 @@ interface UserSport {
 const Dashboard = () => {
   const { user, signOut } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -162,6 +164,9 @@ const Dashboard = () => {
                 <UserPlus className="h-4 w-4" />
               </Button>
             </InviteModal>
+            <Button variant="ghost" size="sm" onClick={() => navigate('/profile')}>
+              <User className="h-4 w-4" />
+            </Button>
             <Button variant="ghost" size="sm">
               <MessageCircle className="h-4 w-4" />
             </Button>
