@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -10,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Trophy, MapPin, User, Heart, Calendar, Clock, Map, Edit, Save, X, Plus, Trash2, AlertCircle } from 'lucide-react';
+import { Loader2, Trophy, MapPin, User, Heart, Calendar, Clock, Map, Edit, Save, X, Plus, Trash2, AlertCircle, ArrowLeft } from 'lucide-react';
 
 interface ProfileData {
   name: string;
@@ -41,6 +42,7 @@ interface UserPreferences {
 const Profile = () => {
   const { user } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -286,6 +288,18 @@ const Profile = () => {
         return;
       }
 
+      // Validate that all sports have both sport and skill_level
+      const invalidSports = sports.filter(sport => !sport.sport || !sport.skill_level);
+      if (invalidSports.length > 0) {
+        toast({
+          title: "Incomplete Sports",
+          description: "Please ensure all sports have both sport type and skill level selected",
+          variant: "destructive"
+        });
+        setSaving(false);
+        return;
+      }
+
       // Update profile
       const { error: profileError } = await supabase
         .from('profiles')
@@ -293,7 +307,7 @@ const Profile = () => {
           id: user.id,
           name: profileData.name,
           age: profileData.age,
-          gender: profileData.gender || null,
+          gender: (profileData.gender as any) || null,
           location: profileData.location,
           bio: profileData.bio,
           latitude: profileData.latitude,
@@ -315,8 +329,8 @@ const Profile = () => {
           .filter(sport => sport.sport && sport.skill_level)
           .map(sport => ({
             user_id: user.id,
-            sport: sport.sport,
-            skill_level: sport.skill_level,
+            sport: sport.sport as any,
+            skill_level: sport.skill_level as any,
           }));
 
         if (sportsToInsert.length > 0) {
@@ -328,22 +342,48 @@ const Profile = () => {
         }
       }
 
-      // Update preferences
-      const { error: prefsError } = await supabase
+      // Update preferences - first try to update, if no rows affected, then insert
+      const { data: existingPrefs } = await supabase
         .from('user_preferences')
-        .upsert({
-          user_id: user.id,
-          preferred_days: preferences.preferred_days,
-          preferred_time_slots: preferences.preferred_time_slots,
-          frequency: preferences.frequency,
-          venue_types: preferences.venue_types,
-          max_travel_distance: preferences.max_travel_distance,
-          age_range_min: preferences.age_range_min,
-          age_range_max: preferences.age_range_max,
-          gender_preference: preferences.gender_preference,
-        });
+        .select('id')
+        .eq('user_id', user.id)
+        .single();
 
-      if (prefsError) throw prefsError;
+      if (existingPrefs) {
+        // Update existing preferences
+        const { error: prefsError } = await supabase
+          .from('user_preferences')
+          .update({
+            preferred_days: preferences.preferred_days.length > 0 ? preferences.preferred_days : [],
+            preferred_time_slots: preferences.preferred_time_slots.length > 0 ? (preferences.preferred_time_slots as any) : [],
+            frequency: preferences.frequency as any,
+            venue_types: preferences.venue_types.length > 0 ? (preferences.venue_types as any) : [],
+            max_travel_distance: preferences.max_travel_distance,
+            age_range_min: preferences.age_range_min,
+            age_range_max: preferences.age_range_max,
+            gender_preference: preferences.gender_preference.length > 0 ? (preferences.gender_preference as any) : [],
+          })
+          .eq('user_id', user.id);
+
+        if (prefsError) throw prefsError;
+      } else {
+        // Insert new preferences
+        const { error: prefsError } = await supabase
+          .from('user_preferences')
+          .insert({
+            user_id: user.id,
+            preferred_days: preferences.preferred_days.length > 0 ? preferences.preferred_days : [],
+            preferred_time_slots: preferences.preferred_time_slots.length > 0 ? (preferences.preferred_time_slots as any) : [],
+            frequency: preferences.frequency as any,
+            venue_types: preferences.venue_types.length > 0 ? (preferences.venue_types as any) : [],
+            max_travel_distance: preferences.max_travel_distance,
+            age_range_min: preferences.age_range_min,
+            age_range_max: preferences.age_range_max,
+            gender_preference: preferences.gender_preference.length > 0 ? (preferences.gender_preference as any) : [],
+          });
+
+        if (prefsError) throw prefsError;
+      }
 
       toast({
         title: "Profile Updated!",
@@ -351,11 +391,11 @@ const Profile = () => {
       });
 
       setIsEditing(false);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error saving profile:', error);
       toast({
         title: "Error",
-        description: "Failed to save profile. Please try again.",
+        description: error?.message || "Failed to save profile. Please try again.",
         variant: "destructive"
       });
     } finally {
@@ -807,11 +847,22 @@ const Profile = () => {
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-accent/5 p-4">
       <div className="container mx-auto max-w-4xl py-8">
         <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-3xl font-bold mb-2">My Profile</h1>
-            <p className="text-muted-foreground">
-              {isEditing ? 'Edit your profile information' : 'View and manage your profile'}
-            </p>
+          <div className="flex items-center gap-4">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => navigate('/dashboard')}
+              className="flex items-center gap-2"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Back to Matching
+            </Button>
+            <div>
+              <h1 className="text-3xl font-bold mb-2">My Profile</h1>
+              <p className="text-muted-foreground">
+                {isEditing ? 'Edit your profile information' : 'View and manage your profile'}
+              </p>
+            </div>
           </div>
           <div className="flex gap-2">
             {isEditing ? (

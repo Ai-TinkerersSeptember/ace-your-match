@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Trophy, MapPin, User, Heart, Calendar, Clock, Map } from 'lucide-react';
+import { Loader2, Trophy, MapPin, User, Heart, Calendar, Clock, Map, ArrowLeft } from 'lucide-react';
 
 interface ProfileData {
   name: string;
@@ -277,7 +277,7 @@ const ProfileSetup = () => {
           id: user.id,
           name: profileData.name,
           age: profileData.age,
-          gender: profileData.gender || null,
+          gender: (profileData.gender as any) || null,
           location: profileData.location,
           bio: profileData.bio,
           latitude: profileData.latitude,
@@ -299,8 +299,8 @@ const ProfileSetup = () => {
           .filter(sport => sport.sport && sport.skill_level)
           .map(sport => ({
             user_id: user.id,
-            sport: sport.sport,
-            skill_level: sport.skill_level,
+            sport: sport.sport as any,
+            skill_level: sport.skill_level as any,
           }));
 
         if (sportsToInsert.length > 0) {
@@ -318,13 +318,13 @@ const ProfileSetup = () => {
         .upsert({
           user_id: user.id,
           preferred_days: preferences.preferred_days,
-          preferred_time_slots: preferences.preferred_time_slots,
-          frequency: preferences.frequency,
-          venue_types: preferences.venue_types,
+          preferred_time_slots: preferences.preferred_time_slots as any,
+          frequency: preferences.frequency as any,
+          venue_types: preferences.venue_types as any,
           max_travel_distance: preferences.max_travel_distance,
           age_range_min: preferences.age_range_min,
           age_range_max: preferences.age_range_max,
-          gender_preference: preferences.gender_preference,
+          gender_preference: preferences.gender_preference as any,
         });
 
       if (prefsError) throw prefsError;
@@ -691,10 +691,23 @@ const ProfileSetup = () => {
               <Trophy className="h-8 w-8 text-primary" />
             </div>
           </div>
-          <h1 className="text-3xl font-bold mb-2">Complete Your Profile</h1>
-          <p className="text-muted-foreground">
-            Step {currentStep} of 3: {currentStep === 1 ? 'Basic Information' : currentStep === 2 ? 'Sports & Skills' : 'Preferences'}
-          </p>
+          <div className="flex items-center justify-center gap-4 mb-4">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => navigate('/dashboard')}
+              className="flex items-center gap-2"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Back to Matching
+            </Button>
+            <div>
+              <h1 className="text-3xl font-bold mb-2">Complete Your Profile</h1>
+              <p className="text-muted-foreground">
+                Step {currentStep} of 3: {currentStep === 1 ? 'Basic Information' : currentStep === 2 ? 'Sports & Skills' : 'Preferences'}
+              </p>
+            </div>
+          </div>
         </div>
 
         <div className="mb-6">
