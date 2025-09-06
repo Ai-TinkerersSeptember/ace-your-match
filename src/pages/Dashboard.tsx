@@ -158,7 +158,7 @@ const Dashboard = () => {
             <h1 className="text-xl font-bold">GameBuddy</h1>
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="sm" onClick={() => navigate('/profile-setup')}>
+            <Button variant="ghost" size="sm" onClick={() => navigate('/profile')}>
               <User className="h-4 w-4" />
             </Button>
             <Button variant="ghost" size="sm">
