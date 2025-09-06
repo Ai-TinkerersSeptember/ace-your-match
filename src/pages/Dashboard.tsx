@@ -96,9 +96,16 @@ const Dashboard = () => {
   };
 
   const handleSwipeLeft = () => {
-    if (currentIndex < profiles.length - 1) {
-      setCurrentIndex(currentIndex + 1);
-    } else {
+    // Safety check - if no current profile, do nothing
+    if (!profiles[currentIndex]) return;
+    
+    // Remove the current match from the profiles array
+    const updatedProfiles = profiles.filter((_, index) => index !== currentIndex);
+    setProfiles(updatedProfiles);
+    
+    // If there are still matches left, stay at the same index (which will now show the next match)
+    // If this was the last match, currentIndex will be >= updatedProfiles.length and no match will be shown
+    if (updatedProfiles.length === 0) {
       toast({
         title: "No more matches",
         description: "You've seen all potential matches for now!"
@@ -108,6 +115,8 @@ const Dashboard = () => {
 
   const handleSwipeRight = async () => {
     const currentProfile = profiles[currentIndex];
+    if (!currentProfile) return; // Safety check
+    
     const profileSports = userSports[currentProfile.id] || [];
     
     try {
@@ -128,7 +137,18 @@ const Dashboard = () => {
         description: `You liked ${currentProfile.name}. If they like you back, you'll be matched!`
       });
 
-      handleSwipeLeft();
+      // Remove the current match from the profiles array
+      const updatedProfiles = profiles.filter((_, index) => index !== currentIndex);
+      setProfiles(updatedProfiles);
+      
+      // If there are still matches left, stay at the same index (which will now show the next match)
+      // If this was the last match, currentIndex will be >= updatedProfiles.length and no match will be shown
+      if (updatedProfiles.length === 0) {
+        toast({
+          title: "No more matches",
+          description: "You've seen all potential matches for now!"
+        });
+      }
     } catch (error) {
       console.error('Error creating match:', error);
       toast({
@@ -147,7 +167,7 @@ const Dashboard = () => {
     );
   }
 
-  const currentProfile = profiles[currentIndex];
+  const currentProfile = profiles[currentIndex] || null;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-accent/5">
