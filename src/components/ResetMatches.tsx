@@ -18,28 +18,60 @@ const ResetMatches = ({ onReset }: ResetMatchesProps) => {
     try {
       setLoading(true);
       
-      const { data, error } = await supabase
-        .rpc('reset_all_matches');
+      // Count records before deletion for feedback
+      const { count: messagesCount } = await supabase
+        .from('messages')
+        .select('*', { count: 'exact', head: true });
+      
+      const { count: conversationsCount } = await supabase
+        .from('conversations')
+        .select('*', { count: 'exact', head: true });
+      
+      const { count: matchesCount } = await supabase
+        .from('matches')
+        .select('*', { count: 'exact', head: true });
 
-      if (error) throw error;
+      // Delete in correct order (respecting foreign key constraints)
+      
+      // First delete messages
+      const { error: messagesError } = await supabase
+        .from('messages')
+        .delete()
+        .neq('id', '00000000-0000-0000-0000-000000000000'); // Delete all records
 
-      if (data?.success) {
-        toast({
-          title: "✅ Matches Reset",
-          description: `Deleted ${data.deleted_matches} matches, ${data.deleted_conversations} conversations, and ${data.deleted_messages} messages.`,
-          duration: 5000
-        });
-        
-        // Call the onReset callback to refresh the matches list
-        if (onReset) {
-          onReset();
-        }
+      if (messagesError) throw messagesError;
+
+      // Then delete conversations
+      const { error: conversationsError } = await supabase
+        .from('conversations')
+        .delete()
+        .neq('id', '00000000-0000-0000-0000-000000000000'); // Delete all records
+
+      if (conversationsError) throw conversationsError;
+
+      // Finally delete matches
+      const { error: matchesError } = await supabase
+        .from('matches')
+        .delete()
+        .neq('id', '00000000-0000-0000-0000-000000000000'); // Delete all records
+
+      if (matchesError) throw matchesError;
+
+      toast({
+        title: "✅ Matches Reset",
+        description: `Deleted ${matchesCount || 0} matches, ${conversationsCount || 0} conversations, and ${messagesCount || 0} messages.`,
+        duration: 5000
+      });
+      
+      // Call the onReset callback to refresh the matches list
+      if (onReset) {
+        onReset();
       }
     } catch (error) {
       console.error('Error resetting matches:', error);
       toast({
         title: "Error",
-        description: "Failed to reset matches",
+        description: `Failed to reset matches: ${error.message}`,
         variant: "destructive"
       });
     } finally {
