@@ -37,12 +37,29 @@ const Dashboard = () => {
 
   const fetchPotentialMatches = async () => {
     try {
-      // Fetch profiles excluding current user
-      const { data: profilesData, error: profilesError } = await supabase
+      // Get current user's location for distance-based matching
+      let userLatitude: number | null = null;
+      let userLongitude: number | null = null;
+      
+      const { data: currentUserProfile } = await supabase
         .from('profiles')
-        .select('*')
-        .neq('id', user?.id)
-        .limit(10);
+        .select('latitude, longitude')
+        .eq('id', user?.id)
+        .single();
+      
+      if (currentUserProfile?.latitude && currentUserProfile?.longitude) {
+        userLatitude = parseFloat(currentUserProfile.latitude.toString());
+        userLongitude = parseFloat(currentUserProfile.longitude.toString());
+      }
+
+      // Use secure function to get potential matches
+      const { data: profilesData, error: profilesError } = await supabase
+        .rpc('get_potential_matches', {
+          user_latitude: userLatitude,
+          user_longitude: userLongitude,
+          max_distance_km: 50,
+          limit_count: 10
+        });
 
       if (profilesError) throw profilesError;
 

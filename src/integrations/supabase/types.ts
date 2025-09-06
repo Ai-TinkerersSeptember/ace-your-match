@@ -286,7 +286,23 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_potential_matches: {
+        Args: {
+          limit_count?: number
+          max_distance_km?: number
+          user_latitude?: number
+          user_longitude?: number
+        }
+        Returns: {
+          age: number
+          bio: string
+          distance_km: number
+          id: string
+          location: string
+          name: string
+          profile_photo_url: string
+        }[]
+      }
     }
     Enums: {
       frequency: "1_2_per_week" | "3_4_per_week" | "daily" | "flexible"
