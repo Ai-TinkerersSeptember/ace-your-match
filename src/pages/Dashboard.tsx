@@ -5,6 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import MatchCard from '@/components/MatchCard';
 import InviteModal from '@/components/InviteModal';
 import MatchNotification from '@/components/MatchNotification';
+import MessagesButton from '@/components/MessagesButton';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -241,6 +242,7 @@ const Dashboard = () => {
                 <UserPlus className="h-4 w-4" />
               </Button>
             </InviteModal>
+            <MessagesButton />
             <Button variant="ghost" size="sm" onClick={() => navigate('/profile')}>
               <User className="h-4 w-4" />
             </Button>

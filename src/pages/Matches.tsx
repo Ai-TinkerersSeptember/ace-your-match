@@ -320,13 +320,7 @@ const Matches = () => {
                           <Button 
                             size="sm" 
                             className="flex-1"
-                            onClick={() => {
-                              // TODO: Navigate to conversation or open message modal
-                              toast({
-                                title: "Coming Soon!",
-                                description: "Messaging feature will be available soon.",
-                              });
-                            }}
+                            onClick={() => navigate('/messages')}
                           >
                             <MessageCircle className="h-4 w-4 mr-2" />
                             Message
