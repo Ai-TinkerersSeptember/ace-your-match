@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
@@ -37,6 +38,7 @@ interface UserPreferences {
   age_range_min: number | null;
   age_range_max: number | null;
   gender_preference: string[];
+  location_enabled: boolean;
 }
 
 const ProfileSetup = () => {
@@ -77,6 +79,7 @@ const ProfileSetup = () => {
     age_range_min: null,
     age_range_max: null,
     gender_preference: [],
+    location_enabled: true,
   });
 
   const [days] = useState([
@@ -612,19 +615,43 @@ const ProfileSetup = () => {
           </div>
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="max_distance">Max Travel Distance (miles)</Label>
-          <Input
-            id="max_distance"
-            type="number"
-            value={preferences.max_travel_distance}
-            onChange={(e) => setPreferences(prev => ({ 
-              ...prev, 
-              max_travel_distance: parseInt(e.target.value) || 10 
-            }))}
-            min="1"
-            max="100"
-          />
+        <div className="space-y-4">
+          <div className="flex items-center space-x-2">
+            <Switch
+              id="location_enabled"
+              checked={preferences.location_enabled}
+              onCheckedChange={(checked) => setPreferences(prev => ({ 
+                ...prev, 
+                location_enabled: checked 
+              }))}
+            />
+            <Label htmlFor="location_enabled" className="text-sm font-medium">
+              Enable location-based matching
+            </Label>
+          </div>
+          
+          {preferences.location_enabled && (
+            <div className="space-y-2 ml-6">
+              <Label htmlFor="max_distance">Max Travel Distance (miles)</Label>
+              <Input
+                id="max_distance"
+                type="number"
+                value={preferences.max_travel_distance}
+                onChange={(e) => setPreferences(prev => ({ 
+                  ...prev, 
+                  max_travel_distance: parseInt(e.target.value) || 10 
+                }))}
+                min="1"
+                max="100"
+              />
+            </div>
+          )}
+          
+          {!preferences.location_enabled && (
+            <p className="text-sm text-muted-foreground ml-6">
+              Location-based matching is disabled. You'll see matches from anywhere and won't be filtered by distance.
+            </p>
+          )}
         </div>
 
         <div className="grid grid-cols-2 gap-4">
